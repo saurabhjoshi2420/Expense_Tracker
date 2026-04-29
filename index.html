@@ -120,6 +120,16 @@ body.android .sum-card{background:#FFDAD7}
 .s-val.grn{color:var(--green)}
 .s-val.org{color:var(--orange)}
 body.android .s-val{color:#410002}
+.s-sub{font-size:10px;color:var(--g1);margin-top:3px;font-weight:500}
+/* ══ All-Time Strip ══ */
+.alltime-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  padding:9px 14px;background:var(--g3);border-radius:var(--r-card);
+  margin-bottom:14px;font-size:12px;color:var(--g1)}
+.at-pill{font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  font-size:10px;background:var(--g2);color:var(--g1);
+  padding:2px 8px;border-radius:20px;margin-right:2px;flex-shrink:0}
+.at-val{font-weight:600;color:var(--fg)}
+.at-sep{color:var(--g2);margin:0 4px}
 
 /* ══ Card ══ */
 .card{background:var(--card);border-radius:var(--r-card);overflow:hidden;
@@ -239,6 +249,8 @@ body.android .av{display:flex}
 .tx.sel .av::after{content:"\2713";font-size:16px;color:#fff;font-weight:700}
 .ti{flex:1;min-width:0}
 .tn{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-em{margin-left:5px;font-style:normal}
+body.android .tx-em{display:none}
 .td{font-size:11px;color:var(--g1);margin-top:2px}
 .ta{font-size:14px;font-weight:600;color:var(--accent);white-space:nowrap}
 
@@ -272,6 +284,93 @@ body.android .toast{border-radius:4px;backdrop-filter:none;background:#322F30;co
   transition:transform .25s cubic-bezier(.05,.7,.1,1),opacity .25s;
   transform:translateX(-50%) translateY(24px);opacity:0}
 body.android .toast.on{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ══ Milestone Modal ══ */
+/* --- keyframes --- */
+@keyframes msSlideUp    {from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes msBadgeBlink1{0%,100%{opacity:1}50%{opacity:.45}}               /* lvl1: soft fade 1.4s */
+@keyframes msBadgeBlink2{0%,100%{opacity:1}50%{opacity:.35}}               /* lvl2: medium 1.1s */
+@keyframes msIconBounce {0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}  /* lvl2 icon */
+@keyframes msWarnFlash  {0%,100%{box-shadow:0 -4px 24px rgba(192,57,43,.2)}
+                         50%{box-shadow:0 -8px 32px rgba(220,53,43,.55)}}  /* lvl3 modal glow */
+@keyframes msBadgeWarn  {0%,100%{background:#FDDBD8;color:#8B1A1A}
+                         50%{background:#E8445A;color:#fff}}               /* lvl3 badge flash */
+@keyframes msCritBlink  {0%,100%{opacity:1}40%{opacity:.6}}                /* lvl4 modal blink */
+@keyframes msCritStripe {0%,100%{opacity:1;box-shadow:0 0 10px #E8445A}
+                         50%{opacity:.5;box-shadow:0 0 28px #FF2D55}}      /* lvl4 stripe throb */
+@keyframes msCritIcon   {0%,100%{transform:scale(1) rotate(0deg)}
+                         20%{transform:scale(1.18) rotate(-8deg)}
+                         40%{transform:scale(1.18) rotate(8deg)}
+                         60%{transform:scale(1.1) rotate(-4deg)}
+                         80%{transform:scale(1.1) rotate(4deg)}}           /* lvl4 shake+scale */
+@keyframes msCritScrim  {0%,100%{background:rgba(0,0,0,.72)}
+                         50%{background:rgba(80,0,0,.78)}}                 /* lvl4 scrim pulse */
+/* --- scrim --- */
+.ms-scrim{position:fixed;inset:0;z-index:10000;
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .35s}
+.ms-scrim.on{opacity:1;pointer-events:all}
+.ms-scrim.lvl1{background:rgba(0,0,0,.35)}
+.ms-scrim.lvl2{background:rgba(0,0,0,.48)}
+.ms-scrim.lvl3{background:rgba(0,0,0,.60)}
+.ms-scrim.lvl4.on{animation:msCritScrim 1.4s ease infinite}
+/* --- modal base --- */
+.ms-modal{
+  border-radius:24px 24px 0 0;
+  padding:32px 24px calc(32px + var(--sb));width:100%;max-width:480px;
+  transform:translateY(100%);
+  transition:transform .42s cubic-bezier(.05,.7,.1,1);
+  position:relative;overflow:hidden}
+.ms-scrim.on .ms-modal{transform:translateY(0)}
+/* --- level 1 : subtle --- */
+.ms-scrim.lvl1 .ms-modal{background:#fff;box-shadow:0 -2px 16px rgba(0,0,0,.1)}
+.ms-scrim.lvl1 .ms-stripe{background:#FF9500;height:3px}
+.ms-scrim.lvl1 .ms-icon{font-size:36px}
+.ms-scrim.lvl1 .ms-badge{background:#FFF0E0;color:#B05800;
+  animation:msBadgeBlink1 1.4s ease infinite}
+/* --- level 2 : caution --- */
+.ms-scrim.lvl2 .ms-modal{background:#FFF8F0;box-shadow:0 -3px 20px rgba(180,80,0,.18)}
+.ms-scrim.lvl2 .ms-stripe{background:linear-gradient(90deg,#FF9500,#E8445A);height:3px}
+.ms-scrim.lvl2 .ms-icon{font-size:44px;animation:msIconBounce 1.1s ease infinite}
+.ms-scrim.lvl2 .ms-badge{background:#FDEBD0;color:#904000;
+  animation:msBadgeBlink2 1.1s ease infinite}
+/* --- level 3 : warning --- */
+.ms-scrim.lvl3 .ms-modal{background:#FFF2F0;
+  animation:msWarnFlash 1s ease infinite}
+.ms-scrim.lvl3 .ms-stripe{background:#E8445A;height:4px}
+.ms-scrim.lvl3 .ms-icon{font-size:52px;animation:msIconBounce .85s ease infinite}
+.ms-scrim.lvl3 .ms-badge{animation:msBadgeWarn .85s ease infinite;
+  font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  padding:4px 10px;border-radius:20px;display:inline-block;margin-bottom:10px}
+.ms-scrim.lvl3 .ms-msg{font-size:16px}
+/* --- level 4 : critical --- */
+.ms-scrim.lvl4 .ms-modal{background:#1C0A0A;
+  animation:msCritBlink .7s ease infinite}
+.ms-scrim.lvl4 .ms-stripe{background:linear-gradient(90deg,#E8445A,#FF2D55,#E8445A);height:6px;
+  animation:msCritStripe .7s ease infinite}
+.ms-scrim.lvl4 .ms-icon{font-size:64px;animation:msCritIcon .9s ease infinite}
+.ms-scrim.lvl4 .ms-badge{background:rgba(232,68,90,.25);color:#FF8096}
+.ms-scrim.lvl4 .ms-msg{color:#fff;font-size:18px;font-weight:700}
+.ms-scrim.lvl4 .ms-btn-later{background:rgba(255,255,255,.12);color:rgba(255,255,255,.7)}
+/* --- shared badge defaults (overridden per level above) --- */
+.ms-badge{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  padding:4px 10px;border-radius:20px;display:inline-block;margin-bottom:10px}
+/* --- stripe base --- */
+.ms-stripe{width:100%;position:absolute;top:0;left:0;border-radius:3px 3px 0 0}
+/* --- icon wrap --- */
+.ms-icon-wrap{text-align:center;margin-bottom:10px}
+.ms-icon{display:inline-block}
+/* --- message --- */
+.ms-msg{font-size:15px;font-weight:600;color:var(--fg);text-align:center;
+  line-height:1.5;margin-bottom:24px}
+/* --- buttons --- */
+.ms-btns{display:flex;gap:10px}
+.ms-btn-review{flex:1;padding:14px;border:none;background:var(--accent);color:#fff;
+  font-size:14px;font-weight:600;font-family:inherit;border-radius:12px;cursor:pointer;transition:background .15s}
+.ms-btn-review:active{background:var(--accent-dark)}
+.ms-btn-later{flex:1;padding:14px;border:none;background:var(--g3);color:var(--fg);
+  font-size:14px;font-weight:500;font-family:inherit;border-radius:12px;cursor:pointer;transition:background .15s}
+.ms-btn-later:active{background:var(--g2)}
 
 /* ══ Ripple ══ */
 .ripple-el{position:absolute;border-radius:50%;background:rgba(159,21,35,.15);
@@ -310,8 +409,22 @@ body.android .toast.on{transform:translateX(-50%) translateY(0);opacity:1}
 
   <!-- Summary -->
   <div class="sum-grid">
-    <div class="sum-card"><div class="s-lbl">Total Expenses</div><div class="s-val cnt" id="sCount">&#x2014;</div></div>
-    <div class="sum-card"><div class="s-lbl">Total Spent</div><div class="s-val" id="sTotal">&#x2014;</div></div>
+    <div class="sum-card">
+      <div class="s-lbl">This Month</div>
+      <div class="s-val cnt" id="sCount">&#x2014;</div>
+      <div class="s-sub">expenses</div>
+    </div>
+    <div class="sum-card">
+      <div class="s-lbl">Month Spent</div>
+      <div class="s-val" id="sTotal">&#x2014;</div>
+    </div>
+  </div>
+  <!-- All-Time Strip -->
+  <div class="alltime-row">
+    <span class="at-pill">All Time</span>
+    <span class="at-val" id="atCount">&#x2014;</span>&thinsp;exp
+    <span class="at-sep">&#183;</span>
+    <span class="at-val" id="atTotal">&#x2014;</span>
   </div>
 
   <!-- iOS Inline Add -->
@@ -366,11 +479,16 @@ body.android .toast.on{transform:translateX(-50%) translateY(0);opacity:1}
   <div class="card">
     <div class="card-hdr">
       <span>Transactions</span>
-      <button class="btn btn-del" id="delBtn" style="display:none" onclick="deleteSelected()">Delete</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-nt" id="selAllBtn" style="display:none" onclick="toggleSelectAll()">Select All</button>
+        <button class="btn btn-del" id="delBtn" style="display:none" onclick="deleteSelected()">Delete</button>
+      </div>
     </div>
     <div id="txList"><div class="spin-wrap"><div class="spin"></div></div></div>
     <div class="exp-row">
       <button class="btn btn-nt" onclick="exportCSV()">&#x2B07; Export CSV</button>
+      <button class="btn btn-nt" onclick="document.getElementById('csvImportInput').click()">&#x2B06; Import CSV</button>
+      <input type="file" id="csvImportInput" accept=".csv" style="display:none" onchange="importCSV(this)">
     </div>
   </div>
 
@@ -399,6 +517,20 @@ body.android .toast.on{transform:translateX(-50%) translateY(0);opacity:1}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Milestone Modal -->
+<div class="ms-scrim" id="msScrim">
+  <div class="ms-modal">
+    <div class="ms-stripe"></div>
+    <div class="ms-icon-wrap"><span class="ms-icon" id="msIcon"></span></div>
+    <div class="ms-badge" id="msBadge"></div>
+    <div class="ms-msg" id="msMsg"></div>
+    <div class="ms-btns">
+      <button class="ms-btn-review" onclick="closeMilestone(true)">Review Expenses</button>
+      <button class="ms-btn-later" onclick="closeMilestone(false)">Remind Me Later</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ── Platform ── */
@@ -465,17 +597,75 @@ function deleteRecords(ids){
 let selectedIds=new Set(),currentFilter=null;
 const MN=["","January","February","March","April","May","June",
   "July","August","September","October","November","December"];
-const EMOJI_MAP={food:"\uD83C\uDF7D\uFE0F",lunch:"\uD83C\uDF7D\uFE0F",dinner:"\uD83C\uDF7D\uFE0F",
-  breakfast:"\uD83C\uDF73",groceries:"\uD83D\uDED2",grocery:"\uD83D\uDED2",
-  fuel:"\u26FD",petrol:"\u26FD",diesel:"\u26FD",
-  travel:"\u2708\uFE0F",train:"\uD83D\uDE86",flight:"\u2708\uFE0F",
-  cab:"\uD83D\uDE96",auto:"\uD83D\uDEFA",bus:"\uD83D\uDE8C",
-  medical:"\uD83D\uDC8A",medicine:"\uD83D\uDC8A",doctor:"\uD83C\uDFE5",hospital:"\uD83C\uDFE5",
-  rent:"\uD83C\uDFE0",electricity:"\uD83D\uDCA1",water:"\uD83D\uDCA7",wifi:"\uD83D\uDCF6",
-  shopping:"\uD83D\uDECD\uFE0F",clothes:"\uD83D\uDC55",shoes:"\uD83D\uDC5F",
-  entertainment:"\uD83C\uDFAC",movie:"\uD83C\uDFAC",ott:"\uD83D\uDCFA",
-  coffee:"\u2615",tea:"\u2615",snacks:"\uD83C\uDFF7\uFE0F",
-  salary:"\uD83D\uDCB0",income:"\uD83D\uDCB0"};
+const EMOJI_MAP={
+  /* Food & Drink */
+  food:"\uD83C\uDF7D\uFE0F",meal:"\uD83C\uDF7D\uFE0F",lunch:"\uD83C\uDF7D\uFE0F",dinner:"\uD83C\uDF7D\uFE0F",
+  breakfast:"\uD83C\uDF73",brunch:"\uD83C\uDF73",
+  snack:"\uD83C\uDF7F",snacks:"\uD83C\uDF7F",chips:"\uD83C\uDF7F",
+  coffee:"\u2615",tea:"\u2615",chai:"\u2615",
+  juice:"\uD83E\uDD64",milk:"\uD83E\uDD5B",water:"\uD83D\uDCA7",
+  pizza:"\uD83C\uDF55",burger:"\uD83C\uDF54",sandwich:"\uD83E\uDD6A",
+  biryani:"\uD83C\uDF5B",rice:"\uD83C\uDF5A",roti:"\uD83E\uFAD3",
+  sweets:"\uD83C\uDF6D",cake:"\uD83C\uDF70","ice cream":"\uD83C\uDF68",icecream:"\uD83C\uDF68",
+  chocolate:"\uD83C\uDF6B",candy:"\uD83C\uDF6C",
+  restaurant:"\uD83C\uDF7D\uFE0F",hotel:"\uD83C\uDFE8",zomato:"\uD83D\uDED2",swiggy:"\uD83D\uDED2",
+  /* Groceries & Household */
+  groceries:"\uD83D\uDED2",grocery:"\uD83D\uDED2",supermarket:"\uD83D\uDED2",
+  vegetables:"\uD83E\uDD66",fruits:"\uD83C\uDF4E",eggs:"\uD83E\uDD5A",
+  cleaning:"\uD83E\uDDF9",detergent:"\uD83E\uDDF4",soap:"\uD83E\uDDFC",
+  /* Transport */
+  fuel:"\u26FD",petrol:"\u26FD",diesel:"\u26FD",cng:"\u26FD",
+  cab:"\uD83D\uDE96",taxi:"\uD83D\uDE96",uber:"\uD83D\uDE96",ola:"\uD83D\uDE96",
+  auto:"\uD83D\uDEFA",rickshaw:"\uD83D\uDEFA",
+  bus:"\uD83D\uDE8C",metro:"\uD83D\uDE87",train:"\uD83D\uDE86",railway:"\uD83D\uDE86",
+  flight:"\u2708\uFE0F",airline:"\u2708\uFE0F",airport:"\u2708\uFE0F",travel:"\u2708\uFE0F",
+  bike:"\uD83C\uDFCD\uFE0F",scooter:"\uD83D\uDEF5",car:"\uD83D\uDE97",
+  parking:"\uD83C\uDD7F\uFE0F",toll:"\uD83D\uDEE3\uFE0F",
+  /* Utilities & Bills */
+  electricity:"\uD83D\uDCA1",electric:"\uD83D\uDCA1",power:"\uD83D\uDCA1",
+  wifi:"\uD83D\uDCF6",internet:"\uD83D\uDCF6",broadband:"\uD83D\uDCF6",
+  mobile:"\uD83D\uDCF1",phone:"\uD83D\uDCF1",recharge:"\uD83D\uDCF1",
+  rent:"\uD83C\uDFE0",maintenance:"\uD83D\uDD27",repair:"\uD83D\uDD27",
+  gas:"\uD83D\uDEE2\uFE0F",lpg:"\uD83D\uDEE2\uFE0F",cylinder:"\uD83D\uDEE2\uFE0F",
+  /* Health & Medical */
+  medical:"\uD83D\uDC8A",medicine:"\uD83D\uDC8A",tablet:"\uD83D\uDC8A",pharmacy:"\uD83D\uDC8A",
+  doctor:"\uD83C\uDFE5",hospital:"\uD83C\uDFE5",clinic:"\uD83C\uDFE5",
+  gym:"\uD83C\uDFCB\uFE0F",yoga:"\uD83E\uDDD8",fitness:"\uD83C\uDFCB\uFE0F",
+  /* Shopping & Lifestyle */
+  shopping:"\uD83D\uDECD\uFE0F",clothes:"\uD83D\uDC55",shirt:"\uD83D\uDC55",
+  shoes:"\uD83D\uDC5F",footwear:"\uD83D\uDC5F",
+  watch:"\u231A",jewellery:"\uD83D\uDC8D",jewelry:"\uD83D\uDC8D",
+  bag:"\uD83D\uDC5C",handbag:"\uD83D\uDC5C",
+  amazon:"\uD83D\uDCE6",flipkart:"\uD83D\uDCE6",myntra:"\uD83D\uDC55",
+  /* Entertainment */
+  movie:"\uD83C\uDFAC",cinema:"\uD83C\uDFAC",theatre:"\uD83C\uDFAC",
+  ott:"\uD83D\uDCFA",netflix:"\uD83D\uDCFA",hotstar:"\uD83D\uDCFA",prime:"\uD83D\uDCFA",
+  entertainment:"\uD83C\uDFAC",games:"\uD83C\uDFAE",gaming:"\uD83C\uDFAE",
+  music:"\uD83C\uDFB5",concert:"\uD83C\uDFB8",spotify:"\uD83C\uDFB5",
+  /* Education */
+  education:"\uD83D\uDCDA",book:"\uD83D\uDCDA",books:"\uD83D\uDCDA",
+  course:"\uD83C\uDF93",tuition:"\uD83C\uDF93",fees:"\uD83C\uDF93",
+  stationery:"\uD83D\uDCDD",pen:"\uD83D\uDCDD",
+  /* Finance & Income */
+  salary:"\uD83D\uDCB0",income:"\uD83D\uDCB0",bonus:"\uD83D\uDCB0",
+  emi:"\uD83C\uDFE6",loan:"\uD83C\uDFE6",insurance:"\uD83D\uDEE1\uFE0F",
+  investment:"\uD83D\uDCC8",mutual:"\uD83D\uDCC8",sip:"\uD83D\uDCC8",
+  tax:"\uD83E\uDFE7",
+  /* Personal Care */
+  haircut:"\u2702\uFE0F",salon:"\uD83D\uDC87",barber:"\uD83D\uDC88",
+  spa:"\uD83E\uDDD6",massage:"\uD83E\uDDD6",
+  cosmetics:"\uD83D\uDC84",makeup:"\uD83D\uDC84",perfume:"\uD83E\uDEAD",
+  /* Travel & Stays */
+  hotel:"\uD83C\uDFE8",stay:"\uD83C\uDFE8",airbnb:"\uD83C\uDFE0",
+  holiday:"\uD83C\uDFD6\uFE0F",vacation:"\uD83C\uDFD6\uFE0F",trip:"\uD83E\uDDF3",
+  /* Gifts & Social */
+  gift:"\uD83C\uDF81",donation:"\uD83E\uDD1D",charity:"\uD83E\uDD1D",
+  party:"\uD83C\uDF89",celebration:"\uD83C\uDF89",wedding:"\uD83D\uDC8D",
+  /* Tech & Subscriptions */
+  subscription:"\uD83D\uDD14",domain:"\uD83C\uDF10",hosting:"\uD83D\uDCBB",
+  software:"\uD83D\uDCBB",laptop:"\uD83D\uDCBB",computer:"\uD83D\uDCBB",
+  "mobile recharge":"\uD83D\uDCF1",
+};
 function getEmoji(p){
   const l=(p||"").toLowerCase();
   for(const[k,v]of Object.entries(EMOJI_MAP))if(l.includes(k))return v;
@@ -498,9 +688,80 @@ function toast(msg,ms=2400){
   clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove("on"),ms);
 }
 function updateDelBtn(){
+  const n=selectedIds.size;
+  const allItems=document.querySelectorAll("#txList .tx");
+  const total=allItems.length;
   const btn=document.getElementById("delBtn");
-  btn.style.display=selectedIds.size?"block":"none";
-  if(selectedIds.size)btn.textContent="Delete ("+selectedIds.size+")";
+  const selBtn=document.getElementById("selAllBtn");
+  btn.style.display=n?"block":"none";
+  if(n)btn.textContent="Delete ("+n+")";
+  selBtn.style.display=total?"block":"none";
+  selBtn.textContent=(n>0&&n===total)?"Deselect All":"Select All";
+}
+function toggleSelectAll(){
+  const allItems=document.querySelectorAll("#txList .tx");
+  const total=allItems.length;
+  if(selectedIds.size===total){
+    /* deselect all */
+    allItems.forEach(item=>{selectedIds.delete(parseInt(item.dataset.id));item.classList.remove("sel");});
+  } else {
+    /* select all */
+    allItems.forEach(item=>{selectedIds.add(parseInt(item.dataset.id));item.classList.add("sel");});
+  }
+  updateDelBtn();
+}
+
+/* ── Milestone Popup ── */
+const MILESTONES=[
+  {limit:10000,  lvl:1, badge:"\u20B910,000 Milestone", icon:"\uD83D\uDCA1", msg:"\u20B910K milestone reached. Awareness is the first step to control."},
+  {limit:25000,  lvl:2, badge:"\u20B925,000 Alert",     icon:"\u23F8\uFE0F",  msg:"\u20B925K spent. A short review now can save a lot later."},
+  {limit:50000,  lvl:3, badge:"\u20B950,000 Warning",   icon:"\u26A0\uFE0F",  msg:"\u20B950K crossed. Maybe it\u2019s time to pause and rethink priorities."},
+  {limit:100000, lvl:4, badge:"\u20B91,00,000 Critical",icon:"\uD83D\uDEA8",  msg:"\u20B91L milestone reached. This deserves your full attention."}
+];
+const MS_KEY="et_ms_"; /* prefix; full key = MS_KEY+YYYY-MM */
+function _msCurMonth(){
+  const d=new Date(new Date().toLocaleString("en-US",{timeZone:"Asia/Kolkata"}));
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+}
+function getShownMilestones(){
+  try{return JSON.parse(localStorage.getItem(MS_KEY+_msCurMonth())||"[]")}catch{return [];}
+}
+function markMilestoneShown(limit){
+  const shown=getShownMilestones();
+  if(!shown.includes(limit)){
+    shown.push(limit);
+    localStorage.setItem(MS_KEY+_msCurMonth(),JSON.stringify(shown));
+  }
+}
+function checkMilestone(total){
+  const shown=getShownMilestones();
+  for(const m of MILESTONES){
+    if(total>=m.limit&&!shown.includes(m.limit)){
+      showMilestone(m);break; /* show only one at a time, highest crossed first */
+    }
+  }
+}
+function showMilestone(m){
+  const scrim=document.getElementById("msScrim");
+  scrim.className="ms-scrim lvl"+m.lvl;
+  document.getElementById("msIcon").textContent=m.icon;
+  document.getElementById("msBadge").textContent=m.badge;
+  document.getElementById("msMsg").textContent=m.msg;
+  scrim.dataset.limit=m.limit;
+  /* double-rAF: first frame lets browser register the new className,
+     second frame adds .on so the CSS opacity/transform transition fires */
+  requestAnimationFrame(()=>requestAnimationFrame(()=>scrim.classList.add("on")));
+}
+function closeMilestone(review){
+  const el=document.getElementById("msScrim");
+  const limit=parseInt(el.dataset.limit);
+  markMilestoneShown(limit);
+  el.classList.remove("on");
+  setTimeout(()=>el.className="ms-scrim",400);
+  if(review){
+    document.getElementById("txList").closest(".card")
+      .scrollIntoView({behavior:"smooth",block:"start"});
+  }
 }
 
 /* ── Sheet ── */
@@ -517,12 +778,23 @@ function closeSheet(){
 /* ── Summary ── */
 async function refreshSummary(){
   const all=await getAll();
-  const count=all.length,total=all.reduce((s,r)=>s+r.amount,0);
-  document.getElementById("sCount").textContent=count;
-  document.getElementById("sTotal").textContent=inr(total);
+  /* current month in IST */
+  const _ist=new Date(new Date().toLocaleString("en-US",{timeZone:"Asia/Kolkata"}));
+  const curM=String(_ist.getMonth()+1).padStart(2,"0"),curY=String(_ist.getFullYear());
+  const curPfx=curY+"-"+curM;
+  const cur=all.filter(r=>(r.date||"").startsWith(curPfx));
+  const curCount=cur.length,curTotal=cur.reduce((s,r)=>s+r.amount,0);
+  const allCount=all.length,allTotal=all.reduce((s,r)=>s+r.amount,0);
+  /* this-month cards */
+  document.getElementById("sCount").textContent=curCount||0;
+  document.getElementById("sTotal").textContent=curTotal?inr(curTotal):"\u20B90";
   document.getElementById("sTotal").className=
-    "s-val"+(count>=100?" org":count>=10?" grn":"");
+    "s-val"+(curTotal>=50000?" org":curTotal>=10000?" grn":"");
+  /* all-time strip */
+  document.getElementById("atCount").textContent=allCount;
+  document.getElementById("atTotal").textContent=inr(allTotal);
   buildMonthSummary(all);
+  return curTotal; /* returned so doAdd can trigger milestone check */
 }
 
 /* ── Month Summary ── */
@@ -584,12 +856,13 @@ async function loadList(month,year){
     item.innerHTML='<div class="ck"><svg width="12" height="10" viewBox="0 0 12 10" fill="none">'
       +'<path d="M1 5l3.5 3.5L11 1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
       +'<div class="av"><span class="av-em">'+esc(emoji)+'</span></div>'
-      +'<div class="ti"><div class="tn">'+esc(row.purpose)+'</div>'
+      +'<div class="ti"><div class="tn">'+esc(row.purpose)+'<span class="tx-em">'+emoji+'</span></div>'
       +'<div class="td">'+esc(row.date)+'</div></div>'
       +'<div class="ta">'+inr(row.amount)+'</div>';
     item.addEventListener("click",()=>toggleSel(item,row.id));
     list.appendChild(item);
   });
+  updateDelBtn(); /* show Select All once items are rendered */
   if(month&&year){
     const sum=rows.reduce((s,r)=>s+r.amount,0);
     document.getElementById("pbarVal").textContent=inr(sum);
@@ -621,7 +894,8 @@ async function doAdd(dateId,amtId,purId,btnId,afterFn){
     toast("\u2713  Expense added");
     document.getElementById("pbar").classList.remove("on");
     await loadList(currentFilter?.month,currentFilter?.year);
-    await refreshSummary();
+    const _mt=await refreshSummary();
+    checkMilestone(_mt); /* only fires on add, based on this month's total */
   }catch{toast("\u26A0\uFE0F  Could not save")}
   finally{btn.disabled=false;btn.textContent=orig}
 }
@@ -657,6 +931,41 @@ async function resetFilter(){
   currentFilter=null;
   document.getElementById("pbar").classList.remove("on");
   await loadList();
+}
+
+/* ── Import ── */
+async function importCSV(input){
+  const file=input.files[0];if(!file)return;
+  input.value=""; /* reset so same file can be re-imported if needed */
+  const text=await file.text();
+  const lines=text.split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length<2){toast("\u26A0\uFE0F  CSV is empty or invalid");return}
+  /* skip header row */
+  const rows=[];
+  for(let i=1;i<lines.length;i++){
+    /* parse: date,amount,"purpose" — handle quoted commas in purpose */
+    const m=lines[i].match(/^(\d{4}-\d{2}-\d{2}),([\d.]+),"?(.*?)"?$/);
+    if(!m)continue;
+    const date=m[1].trim();
+    const amount=parseFloat(m[2]);
+    const purpose=m[3].replace(/""/g,'"').trim();
+    if(!date||isNaN(amount)||amount<=0||!purpose)continue;
+    rows.push({date,amount,purpose});
+  }
+  if(!rows.length){toast("\u26A0\uFE0F  No valid rows found in CSV");return}
+  /* check for duplicates against existing data */
+  const existing=await getAll();
+  const exKeys=new Set(existing.map(r=>r.date+"|"+r.amount+"|"+r.purpose.trim().toLowerCase()));
+  const toAdd=rows.filter(r=>!exKeys.has(r.date+"|"+r.amount+"|"+r.purpose.trim().toLowerCase()));
+  if(!toAdd.length){toast("\u2139\uFE0F  All rows already exist — nothing imported");return}
+  let imported=0;
+  for(const r of toAdd){
+    try{await addRecord(r);imported++;}catch{/* skip failed rows */}
+  }
+  toast("\u2713  Imported "+imported+" expense"+(imported!==1?"s":"")
+    +(rows.length-imported>0?" ("+(rows.length-imported)+" duplicates skipped)":""));
+  await loadList(currentFilter?.month,currentFilter?.year);
+  await refreshSummary();
 }
 
 /* ── Export ── */
