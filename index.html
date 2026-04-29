@@ -884,6 +884,8 @@ async function doAdd(dateId,amtId,purId,btnId,afterFn){
   const amount=parseFloat(rawAmt);
   if(isNaN(amount)||amount<=0||amount>10000000){toast("\u26A0\uFE0F  Enter a valid amount");return}
   if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){toast("\u26A0\uFE0F  Invalid date");return}
+  const _todayIST=new Date().toLocaleDateString("en-CA",{timeZone:"Asia/Kolkata"});
+  if(date>_todayIST){toast("\uD83D\uDEAB  Future dates not allowed. You can only log today or past expenses.");return}
   const btn=document.getElementById(btnId);
   btn.disabled=true;const orig=btn.textContent;btn.textContent="Adding\u2026";
   try{
