@@ -58,6 +58,7 @@ body.android{
 }
 /* Reset */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;overscroll-behavior-y:none}
 html{-webkit-text-size-adjust:100%}
 body{
   font-family:var(--font);background:var(--bg);color:var(--fg);
@@ -984,7 +985,16 @@ async function exportCSV(){
   a.click();URL.revokeObjectURL(a.href);
   toast("\u2713  CSV downloaded");
 }
-
+/* ── Prevent pull-to-refresh on Android PWA ── */
+(function(){
+  var _sy=0;
+  document.addEventListener('touchstart',function(e){_sy=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchmove',function(e){
+    if(window.scrollY===0&&e.touches[0].clientY>_sy){
+      e.preventDefault();
+    }
+  },{passive:false});
+})();
 /* ── Ripple (Android) ── */
 if(IS_ANDROID){
   document.addEventListener("click",e=>{
